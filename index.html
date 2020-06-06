@@ -1,0 +1,153 @@
+<!-- https://webrtchacks.com/datachannel-multiplayer-game/ -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Memory</title>
+		<style>
+			body
+			{
+				background: #F4F4F4;
+			}
+
+			#board
+			{
+				height: 592px;
+				margin: 0 auto;
+				perspective: 2048px;
+				width: 592px;
+			}
+
+			.card
+			{
+				cursor: pointer;
+				float: left;
+				height: 128px;
+				margin: 8px;
+				transition: transform 0.3s;
+				transform-style: preserve-3d;
+				transition-timing-function: ease-out;
+				width: 128px;
+			}
+
+			.card.flipped
+			{
+				transform: rotateY(-180deg);
+			}
+
+			.card > .face
+			{
+				backface-visibility: hidden;
+				border-radius: 8px;
+				box-shadow: 2px 2px 2px #999;
+				height: 128px;
+				position: absolute;
+				width: 128px;
+			}
+
+			.card > .back
+			{
+				background: #F88;
+			}
+
+			.card > .front
+			{
+				transform: rotateY(180deg);
+			}
+		</style>
+	</head>
+	<body>
+		<div id="board"></div>
+		<script>
+			var cards = [];
+			var match = [];
+
+			function flipMatch()
+			{
+				match[0].classList.toggle('flipped');
+				match[1].classList.toggle('flipped');
+
+				match = [];
+			}
+
+			function flipCard()
+			{
+				switch(match.length)
+				{
+					case 0:
+						this.classList.toggle('flipped');
+						match.push(this);
+						break;
+
+					case 1:
+						this.classList.toggle('flipped');
+						match.push(this);
+
+						if(this.dataset.id == match[0].dataset.id)
+						{
+							match[0].onclick = null;
+							match[1].onclick = null;
+
+							match = [];
+						}
+						else
+						{
+							match.push(this);
+							setTimeout(flipMatch, 500);
+						}
+						break;
+				}
+			}
+
+			function addCard(id)
+			{
+				var card = document.createElement('div');
+
+				card.className = 'card';
+				card.dataset.id = id;
+				card.onclick = flipCard;
+
+				board.appendChild(card);
+
+				// Back
+
+				var back = document.createElement('div');
+				back.className = 'face back';
+				card.appendChild(back);
+
+				// Face
+
+				var image = new Image();
+				image.src = id+'.jpg';
+				image.className = 'face front';
+				card.appendChild(image);
+			}
+
+			function shuffleCards()
+			{
+				var l = cards.length;
+
+				for(var i=0; i<l; i++)
+				{
+					var j = Math.floor(Math.random()*l);
+					var c = cards[i];
+
+					cards[i] = cards[j];
+					cards[j] = c;
+				}
+			}
+
+			for(var i=0; i<8; i++)
+			{
+				cards.push(i);
+				cards.push(i);
+			}
+
+			shuffleCards();
+
+			for(var i=0; i<cards.length; i++)
+			{
+				addCard(cards[i]);
+			}
+		</script>
+	</body>
+</html>
